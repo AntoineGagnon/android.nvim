@@ -31,20 +31,27 @@ local function create_commands()
 end
 
 local function setup_which_key()
-  -- Try to safely load which-key
   local ok, wk = pcall(require, "which-key")
-  if not ok then return end
+  if not ok then
+    -- Fallback to standard keymaps if which-key is not installed
+    vim.keymap.set("n", "<leader>aa", "<cmd>AndroidBuildAndRun<cr>", { desc = "Android Build & Run" })
+    vim.keymap.set("n", "<leader>ab", "<cmd>AndroidBuild<cr>", { desc = "Android Build" })
+    vim.keymap.set("n", "<leader>ac", "<cmd>AndroidClean<cr>", { desc = "Android Clean" })
+    vim.keymap.set("n", "<leader>al", "<cmd>AndroidLogcatToggle<cr>", { desc = "Android Logcat" })
+    vim.keymap.set("n", "<leader>ad", "<cmd>AndroidSelectDevice<cr>", { desc = "Android Select Device" })
+    vim.keymap.set("n", "<leader>ae", "<cmd>AndroidStartEmulator<cr>", { desc = "Android Start Emulator" })
+    return
+  end
 
-  -- Register the group name for <leader>a so users see "Android" in their popup
-  -- And we map the exact commands to icons, so if a user maps <leader>al to :AndroidLogcatToggle, it gets the icon!
+  -- We use which-key to register both the group AND the actual keymaps with icons!
   wk.add({
     { "<leader>a", group = "Android", icon = "󰀲 ", mode = { "n", "v" } },
-    { "<cmd>AndroidBuildAndRun<cr>", desc = "Android Build & Run", icon = "󰏖 " },
-    { "<cmd>AndroidLogcatToggle<cr>", desc = "Android Logcat", icon = "󰈐 " },
-    { "<cmd>AndroidSelectDevice<cr>", desc = "Android Select Device", icon = "󰄜 " },
-    { "<cmd>AndroidStartEmulator<cr>", desc = "Android Start Emulator", icon = "󰍲 " },
-    { "<cmd>AndroidBuild<cr>", desc = "Android Build", icon = "󰏖 " },
-    { "<cmd>AndroidClean<cr>", desc = "Android Clean", icon = "󰃢 " },
+    { "<leader>aa", "<cmd>AndroidBuildAndRun<cr>", desc = "Android Build & Run", icon = "󰏖 ", mode = "n" },
+    { "<leader>ab", "<cmd>AndroidBuild<cr>", desc = "Android Build", icon = "󰏖 ", mode = "n" },
+    { "<leader>ac", "<cmd>AndroidClean<cr>", desc = "Android Clean", icon = "󰃢 ", mode = "n" },
+    { "<leader>ad", "<cmd>AndroidSelectDevice<cr>", desc = "Android Select Device", icon = "󰄜 ", mode = "n" },
+    { "<leader>ae", "<cmd>AndroidStartEmulator<cr>", desc = "Android Start Emulator", icon = "󰍲 ", mode = "n" },
+    { "<leader>al", "<cmd>AndroidLogcatToggle<cr>", desc = "Android Logcat", icon = "󰈐 ", mode = "n" },
   })
 end
 
@@ -52,10 +59,14 @@ function M.setup(opts)
   config.setup(opts)
   create_commands()
   
-  -- We defer this slightly to ensure which-key is loaded if lazy-loaded
-  vim.schedule(function()
-    setup_which_key()
-  end)
+  -- Use an autocmd to wait until VeryLazy to setup which-key,
+  -- ensuring we don't conflict with LazyVim's which-key initialization
+  vim.api.nvim_create_autocmd("User", {
+    pattern = "VeryLazy",
+    callback = function()
+      setup_which_key()
+    end,
+  })
 end
 
 return M
