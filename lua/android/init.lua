@@ -36,8 +36,15 @@ local function setup_which_key()
   if not ok then return end
 
   -- Register the group name for <leader>a so users see "Android" in their popup
+  -- And we map the exact commands to icons, so if a user maps <leader>al to :AndroidLogcatToggle, it gets the icon!
   wk.add({
     { "<leader>a", group = "Android", icon = "󰀲 ", mode = { "n", "v" } },
+    { "<cmd>AndroidBuildAndRun<cr>", desc = "Android Build & Run", icon = "󰏖 " },
+    { "<cmd>AndroidLogcatToggle<cr>", desc = "Android Logcat", icon = "󰈐 " },
+    { "<cmd>AndroidSelectDevice<cr>", desc = "Android Select Device", icon = "󰄜 " },
+    { "<cmd>AndroidStartEmulator<cr>", desc = "Android Start Emulator", icon = "󰍲 " },
+    { "<cmd>AndroidBuild<cr>", desc = "Android Build", icon = "󰏖 " },
+    { "<cmd>AndroidClean<cr>", desc = "Android Clean", icon = "󰃢 " },
   })
 end
 
